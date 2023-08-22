@@ -9,7 +9,7 @@ from plotly.subplots import make_subplots
 
 st.set_page_config(
     page_title="F1 Data Analisis Web",
-    page_icon="/home/chris/PythonProjects/F1/assets/f1.png"
+    page_icon="assets/f1.png"
 )
 st.markdown(
 """
@@ -39,7 +39,7 @@ st.write('')
 
 with st.expander('How to read this data?'):
    st.write("""
-**This section displays the position history of drivers during the race in a line chart. Violin plots depicts
+This section displays the position history of drivers during the race in a line chart. Violin plots depicts
 the consistency and pace of the drivers. For every driver, their "violin" would be wider in the time range 
 with the most laps made. Also you could see how some drivers chose to do some quick laps and then going back to
 manage tyre life with slower laps. Finally, the tyre strategies chart display how different were the strategy 

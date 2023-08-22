@@ -12,7 +12,7 @@ from streamlit_lottie import st_lottie
 
 st.set_page_config(
     page_title="F1 Data Analisis Web",
-    page_icon="/home/chris/PythonProjects/F1/assets/f1.png"
+    page_icon="assets/f1.png"
 )
 
 st.markdown(
