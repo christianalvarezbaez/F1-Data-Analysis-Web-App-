@@ -6,10 +6,39 @@ import plotly.graph_objects as go
 import numpy as np
 from plotly.subplots import make_subplots
 
+
+
 st.set_page_config(
     page_title="F1 Data Analisis Web",
     page_icon="assets/f1.png"
 )
+
+def add_logo():
+    st.markdown(
+        """
+        <style>
+            [data-testid="stSidebarNav"] {
+                background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/F1_logo.svg/256px-F1_logo.svg.png);
+                background-repeat: no-repeat;
+                padding-top: 120px;
+                background-position: 20px 20px;
+                margin-left: 0px;
+                margin-right: 10px;
+            }
+            [data-testid="stSidebarNav"]::before {
+                content: "F1 Data Analysis";
+                margin-left: 10px;
+                margin-top: 10px;
+                font-size: 20px;
+                position: relative;
+                top: 80px;
+                font-weight: bold;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+add_logo()
 
 st.markdown(
 """
@@ -360,13 +389,13 @@ if driver2 != 'None':
     weather_d2 = driver_2.loc[driver_2.LapNumber==lap2].get_weather_data()
 
   if lap1 != 'quickest lap' and lap2 != 'quickest lap':
-      title = f'{driver1_FN} on lap {lap1} vs {driver2_FN} on lap {lap2}'
+      title = f'{driver1_FN} on lap {lap1} vs {driver2_FN} on lap {lap2} in the {st.session_state.session_name} on the Grand Prix from {st.session_state.gp[2:]} {st.session_state.year}'
   if lap1 == 'quickest lap' and lap2 != 'quickest lap':
-      title = f'{driver1_FN} on {lap1} vs {driver2_FN} on lap {lap2}'
+      title = f'{driver1_FN} on {lap1} vs {driver2_FN} on lap {lap2} in the {st.session_state.session_name} on the Grand Prix from {st.session_state.gp[2:]} {st.session_state.year}'
   if lap1 != 'quickest lap' and lap2 == 'quickest lap':
-      title = f'{driver1_FN} on lap {lap1} vs {driver2_FN} on {lap2}'
+      title = f'{driver1_FN} on lap {lap1} vs {driver2_FN} on {lap2} in the {st.session_state.session_name} on the Grand Prix from {st.session_state.gp[2:]} {st.session_state.year}'
   if lap1 == 'quickest lap' and lap2 == 'quickest lap':
-      title = f'{driver1_FN} on {lap1} vs {driver2_FN} on {lap2}'
+      title = f'{driver1_FN} on {lap1} vs {driver2_FN} on {lap2} in the {st.session_state.session_name} on the Grand Prix from {st.session_state.gp[2:]} {st.session_state.year}'
 
   st.subheader(title)
 

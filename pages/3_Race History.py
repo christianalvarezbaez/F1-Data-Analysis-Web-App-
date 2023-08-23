@@ -6,11 +6,42 @@ import plotly.graph_objects as go
 import plotly.express as px
 import numpy as np
 from plotly.subplots import make_subplots
+import requests
+import json
+from streamlit_lottie import st_lottie
 
 st.set_page_config(
     page_title="F1 Data Analisis Web",
     page_icon="assets/f1.png"
 )
+
+def add_logo():
+    st.markdown(
+        """
+        <style>
+            [data-testid="stSidebarNav"] {
+                background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/F1_logo.svg/256px-F1_logo.svg.png);
+                background-repeat: no-repeat;
+                padding-top: 120px;
+                background-position: 20px 20px;
+                margin-left: 0px;
+                margin-right: 10px;
+            }
+            [data-testid="stSidebarNav"]::before {
+                content: "F1 Data Analysis";
+                margin-left: 10px;
+                margin-top: 10px;
+                font-size: 20px;
+                position: relative;
+                top: 80px;
+                font-weight: bold;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+add_logo()
+
 st.markdown(
 """
 <style>
@@ -49,79 +80,59 @@ but some other might got a really bad call.
 """)
 
 
+def load_lottiefile(filepath: str):
+    with open(filepath, "r") as f:
+        return json.load(f)
 
-st.sidebar.success("Select a page above.")
+
+animation = load_lottiefile('assets/f1.json')
+
+
+sidebar = st.sidebar
+
+with sidebar:
+    st.success("For a new session data, go back to Telemetry.")
+    st.write('')
+    st.write('')
+    st.write('')
+    st_lottie(animation)
+
+
+
 
 session = 'R'
-gp = st.session_state.gp[2:]
-year = st.session_state.year
 
-if 'showplots' not in st.session_state:
-    st.session_state.showplots = True 
-
-def Notshowplots():
-    st.session_state.showplots = False
-
-# -----------SideBar
-st.sidebar.subheader('Year')
-years = [i for i in range(2018,2023+1)]
-year = st.sidebar.selectbox('Select year',(years),st.session_state.yearid, on_change = Notshowplots)
-st.session_state.year = year
-st.session_state.yearid = years.index(year)
+if 'gp' not in st.session_state:
+    st.session_state.gp = '12 Hungary' 
+if 'year' not in st.session_state:
+    st.session_state.year = 2023
+if 'sessions' not in st.session_state:
+    st.session_state.sessions = 'R' 
 
 
-event_schedule = ff1.get_event_schedule(year)
-gps = list(pd.DataFrame(event_schedule['Country'])['Country'])
-numbers = [i for i in range(1,len(gps)+1)]
-merged_list = [str(num) + ' ' + word for num, word in zip(numbers, gps)]
-st.sidebar.subheader('Grand Prix')
-gp = st.sidebar.selectbox('Select grand prix', range(len(merged_list)),index = st.session_state.gpindex, format_func=lambda x: merged_list[x], on_change = Notshowplots)
-
-st.session_state.gp = merged_list[gp]
-st.session_state.gpindex = gp
 
 gp = st.session_state.gp[2:]
 year = st.session_state.year
 
-# Saving race session---------
-if 'reload' not in st.session_state: 
-    st.session_state.reload = False
-
-
+# Loading race session---------
 if 'get_session' not in st.session_state:
-    race = ff1.get_session(year, gp, session)
-    race.load()
-    st.session_state.get_session = race
-    laps = race.laps
+    try: 
+        race = ff1.get_session(year, gp, session)
+        race.load()
+    except:
+        st.warning('No data for this selection, choose another grand prix')
 
-def get_session():
-    race = ff1.get_session(year, gp, session)
-    race.load()
-    st.session_state.get_session = race
-    st.session_state.showplots = True 
-
-   
-st.sidebar.button('Get new data!',on_click = get_session, help = 'If you modify any parameter above, click this!')
-
-if st.session_state.sessions != session and st.session_state.reload is False: 
-    race = ff1.get_session(year,gp,session)
-    race.load()
-    st.session_state.reload = True
-    print('first if')
-elif st.session_state.sessions != session and st.session_state.change == True: 
-    race = ff1.get_session(year,gp,session)
-    race.load()
-    st.session_state.change = False
-    print('second if')
-elif st.session_state.sessions != session and st.session_state.showplots == True: 
-    race = ff1.get_session(year,gp,session)
-    race.load()
-    st.session_state.change = False
-    print('third if')
-elif st.session_state.showplots == False: 
-    race = st.session_state.get_session
-    print('forth if')
-
+if st.session_state.sessions != session: 
+    try:
+        race = ff1.get_session(year,gp,session)
+        race.load()
+    except:
+        st.warning('No data for this selection, choose another grand prix')
+else: 
+    try: 
+        race = st.session_state.get_session
+    except:
+        st.warning('No data for this selection, choose another grand prix')
 try:
     laps = race.laps
 except: 

@@ -11,6 +11,33 @@ st.set_page_config(
     page_icon="assets/f1.png"
 )
 
+def add_logo():
+    st.markdown(
+        """
+        <style>
+            [data-testid="stSidebarNav"] {
+                background-image: url(https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/F1_logo.svg/256px-F1_logo.svg.png);
+                background-repeat: no-repeat;
+                padding-top: 120px;
+                background-position: 20px 20px;
+                margin-left: 0px;
+                margin-right: 10px;
+            }
+            [data-testid="stSidebarNav"]::before {
+                content: "F1 Data Analysis";
+                margin-left: 10px;
+                margin-top: 10px;
+                font-size: 20px;
+                position: relative;
+                top: 80px;
+                font-weight: bold;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+add_logo()
+
 st.markdown(
 """
 <style>
@@ -45,18 +72,14 @@ that Ferrari might need a different strategy than Redbull. And this is why this 
 in practice sessions are crucial for delivering a good strategy on the race. 
 
 """)
-st.sidebar.success("Select a page above.")
+st.sidebar.success("For a new session data, go back to Telemetry")
 
-if 'showplots' not in st.session_state:
-    st.session_state.showplots = True 
+try:
+    race = st.session_state.get_session
+    race.load()
+except:
+    st.warning('No data for this selection, choose another grand prix')
 
-def Notshowplots():
-    st.session_state.showplots = False
-
-
-
-
-race = st.session_state.get_session
 
 try:
     laps = race.laps
@@ -64,67 +87,9 @@ except:
    st.warning('No data for this selection')
 
 
-# -----------SideBar
-st.sidebar.subheader('Year')
-years = [i for i in range(2018,2023+1)]
-year = st.sidebar.selectbox('Select year',(years),st.session_state.yearid, on_change = Notshowplots)
-st.session_state.year = year
-st.session_state.yearid = years.index(year)
-
-
-event_schedule = ff1.get_event_schedule(year)
-gps = list(pd.DataFrame(event_schedule['Country'])['Country'])
-numbers = [i for i in range(1,len(gps)+1)]
-merged_list = [str(num) + ' ' + word for num, word in zip(numbers, gps)]
-st.sidebar.subheader('Grand Prix')
-gp = st.sidebar.selectbox('Select grand prix', range(len(merged_list)),index = st.session_state.gpindex, format_func=lambda x: merged_list[x],on_change = Notshowplots)
-
-st.session_state.gp = merged_list[gp]
-st.session_state.gpindex = gp
-
-
-st.sidebar.subheader('Session')
-sessions = ['Race','Qualifying','Practice 1', 'Practice 2', 'Practice 3']
-sessionsid = ['R','Q','FP1','FP2','FP3']
-session_ = st.sidebar.selectbox('Select session', (sessions),index = st.session_state.sessionsid, on_change = Notshowplots)
-if session_ == 'Race':
-    session = 'R'
-elif session_ == 'Qualifying':
-    session = 'Q'
-elif session_ == 'Practice 1':
-    session = 'FP1'
-elif session_ == 'Practice 2':
-    session = 'FP2'
-elif session_ == 'Practice 3':
-    session = 'FP3'
-
-st.session_state.sessions = session
-st.session_state.sessionsid = sessionsid.index(session)
-
 session = st.session_state.sessions
 gp = st.session_state.gp[2:]
 year = st.session_state.year
-
-# Saving race session---------
-if 'get_session' not in st.session_state:
-    race = ff1.get_session(year, gp, session)
-    race.load()
-    st.session_state.get_session = race
-    laps = race.laps
-
-def get_session():
-    race = ff1.get_session(year, gp, session)
-    race.load()
-    st.session_state.get_session = race
-    st.session_state.showplots = True 
-
-   
-race = st.session_state.get_session
-try:
-  laps = race.laps
-except: 
-  st.warning('No data for this selection, choose another session or grand prix')
-st.sidebar.button('Get new data!',on_click = get_session, help = 'If you modify any parameter above, click this!')
 
 drivers = list(race.results.FullName)
 drivers_ = drivers[:]
@@ -188,9 +153,9 @@ if len(driver_laps2) > 1:
 
 
 if len(driver2) > 0:
-    title=f"""{driver1_FN} vs {driver2_FN} Laptimes in the {st.session_state.session_name} in the {st.session_state.gp[2:]} Grand Prix {st.session_state.year}"""
+    title=f"""{driver1_FN} vs {driver2_FN} Laptimes in the {st.session_state.session_name} on the Grand Prix from {st.session_state.gp[2:]} {st.session_state.year}"""
 else:
-    title=f"""{driver1_FN} vs {driver2_FN} Laptimes in the {st.session_state.session_name} in the {st.session_state.gp[2:]} Grand Prix {st.session_state.gp}"""
+    title=f"""{driver1_FN} Laptimes in the {st.session_state.session_name} on the Grand Prix from {st.session_state.gp[2:]} {st.session_state.year}"""
 
 st.subheader(title)
 
